@@ -6,36 +6,20 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.MapGet("/", () => "Hello World!");
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
+app.MapPost("/login", (LoginDTO loginDTO) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    if (loginDTO.Email == "admin@test.com" && loginDTO.Password == "1234567")
+        return Results.Ok("You're logged in!");
+    else
+        return Results.Unauthorized();
+});
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+public class LoginDTO
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public string Email { get; set; } = default!;
+    public string Password { get; set; } = default!;
 }
